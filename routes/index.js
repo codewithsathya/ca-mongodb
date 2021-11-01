@@ -88,6 +88,7 @@ router.post("/users/bulkSave", async (req, res) => {
 	}
 })
 
+
 //posts
 router.get("/posts/find", async (req, res) => {
 	try {
@@ -104,6 +105,26 @@ router.post("/posts/create", async (req, res) => {
 			postId: req.body.postId
 		});
 		await Posts.create(newPost);
+		res.send(newPost);
+	} catch (error) {
+		throw error;
+	}
+})
+
+router.post("/createPost", async (req, res) => {
+	try {
+		let postId = req.body.postId;
+		let posts = await Posts.find();
+		if(posts.includes(postId)){
+			res.send("Post already exists");
+		}
+		let newPost = new Posts({postId});
+		await Posts.create(newPost);
+		let users = await Users.find();
+		for(let i in users){
+			users[i].posts.push(postId);
+		}
+		await Users.bulkSave(users);
 		res.send(newPost);
 	} catch (error) {
 		throw error;
